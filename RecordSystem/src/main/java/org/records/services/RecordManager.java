@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 @Service
 public class RecordManager {
+    public Optional<Record> getRecordByVersionNum(Integer id, Integer versionNum) {
+        // Check if both the version and record exist
+        return null;
+    }
     @Autowired
     RecordRepository recordRepository;
 
