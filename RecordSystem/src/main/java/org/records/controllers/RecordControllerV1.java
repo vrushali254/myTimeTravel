@@ -5,8 +5,7 @@ import org.records.services.RecordManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @RestController
@@ -31,14 +30,27 @@ public class RecordControllerV1 {
     }
 
 
-    @RequestMapping(value =  "v2/record/{recordId}/{versionNum}", method = RequestMethod.GET)
-    public Optional<Record> getRecordByVersionNum(@PathVariable(value = "recordId", required = true) Integer id, @PathVariable(value="versionNum", required = false) Optional<Integer> versionNum) {
+    @RequestMapping(value =  {"v2/record/{recordId}", "v2/record/{recordId}/{versionNum}"}, method = RequestMethod.GET)
+    public Optional<Record> getRecordByVersionNum(@PathVariable(value = "recordId") Integer id, @PathVariable(value="versionNum", required = false) Optional<Integer> versionNum) {
+//        Integer id = pathVariables.get("recordId");
+//        Integer versionNum = pathVariables.get("versionNum");
         //Get latest if no versionNum is specified
         if(versionNum.isEmpty()) {
             return recordManager.getRecordById(id);
         }
         return recordManager.getRecordByVersionNum(id, versionNum.get());
     }
+
+    @RequestMapping(value =  "v2/record/{recordId}/{versionNum}", method = RequestMethod.POST)
+    public Optional<Record> createOrUpdateRecordByVersionNum(@PathVariable(value = "recordId") Integer id, @PathVariable(value="versionNum", required = true) Integer versionNum) {
+        return recordManager.createOrUpdateRecordByVersionNum(id, versionNum);
+    }
+
+   // v2/records/{recordId}/history?startTime && endTime → GET
+    @RequestMapping(value="v2/records/{recordId}/history", method = RequestMethod.GET)
+    public List<Record> getRecordHistory(@PathVariable(value = "recordId", required = true) Integer id) {
+        return recordManager.getRecordHistory(id);
+   }
 
 }
 
