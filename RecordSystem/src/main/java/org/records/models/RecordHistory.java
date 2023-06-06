@@ -4,7 +4,7 @@ import java.util.*;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="recordHistory")
+@Table(name="record_history")
 public class RecordHistory {
 
     public RecordHistory() {
@@ -12,14 +12,18 @@ public class RecordHistory {
 
     public RecordHistory(Integer id) {
         this.setId(id);
-        this.setOlderRecords(new ArrayList<>());
+        this.setVersionedRecords(new HashMap<>());
     }
     @Id
     @Column(name="record_id")
     private Integer id;
 
-    @Column(name="older_records")
-    private List<Record> olderRecords;
+    @Column(name="latest_version")
+    private Integer latestVersion;
+
+    @Column(name="versioned_records")
+    private Map<Integer, Record> versionedRecords;
+
 
     public Integer getId() {
         return id;
@@ -29,11 +33,19 @@ public class RecordHistory {
         this.id = id;
     }
 
-    public List<Record> getOlderRecords() {
-        return olderRecords;
+    public Map<Integer, Record> getVersionedRecords() {
+        return versionedRecords;
     }
 
-    public void setOlderRecords(List<Record> olderRecords) {
-        this.olderRecords = olderRecords;
+    public void setVersionedRecords(Map<Integer, Record> versionedRecords) {
+        this.versionedRecords = versionedRecords;
+    }
+
+    public Integer getLatestVersion() {
+        return latestVersion;
+    }
+
+    public void setLatestVersion(Integer latestVersion) {
+        this.latestVersion = latestVersion;
     }
 }

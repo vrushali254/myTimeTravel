@@ -2,6 +2,8 @@ package org.records.services;
 
 import java.util.*;
 import org.records.models.Record;
+import org.records.models.RecordHistory;
+import org.records.repositories.RecordHistoryRepository;
 import org.records.repositories.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ public class RecordManager {
     }
     @Autowired
     RecordRepository recordRepository;
+
+    @Autowired
+    RecordHistoryRepository recordHistoryRepository;
 
     public List<Record> getAllRecords() {
         return recordRepository.findAll();
