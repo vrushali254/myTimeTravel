@@ -27,8 +27,8 @@ public class Record {
     }
 
     public Record(Integer id, String data) {
-        this.id = id;
-        this.data = data;
+        this.setId(id);
+        this.setData(data);
     }
 
 
