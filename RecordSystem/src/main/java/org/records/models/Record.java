@@ -15,12 +15,68 @@ public class Record {
     @Column(name="data")
     private String data;
 
-    @Column(name="versionNum")
-    private long versionNum;
+    @Column(name="versionNum", nullable = false)
+    private long versionNum = 1;
 
     @CreationTimestamp
     private Timestamp createdOn;
     @UpdateTimestamp
     private Timestamp lastUpdatedOn;
 
+    public Record() {
+    }
+
+    public Record(Integer id, String data) {
+        this.id = id;
+        this.data = data;
+    }
+
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public long getVersionNum() {
+        return versionNum;
+    }
+
+    public void setVersionNum(long versionNum) {
+        this.versionNum = versionNum;
+    }
+
+    public Timestamp getCreatedOn() {
+        return createdOn;
+    }
+
+    public Timestamp getLastUpdatedOn() {
+        return lastUpdatedOn;
+    }
+
+    @Override
+    public String toString() {
+        return "Record{" +
+                "id=" + id +
+                ", data='" + data + '\'' +
+                ", versionNum=" + versionNum +
+                ", createdOn=" + createdOn +
+                ", lastUpdatedOn=" + lastUpdatedOn +
+                '}';
+    }
+
+    public void update(String data) {
+        this.versionNum = this.versionNum + 1;
+        this.data = data;
+    }
 }

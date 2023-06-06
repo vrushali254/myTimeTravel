@@ -1,36 +1,34 @@
 package org.records.controllers;
 
+import org.records.models.Record;
+import org.records.services.RecordManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 
 @RestController
 @RequestMapping("api/v1")
 public class RecordControllerV1 {
-//    @Autowired
-//    RecordsManager recordsManager;
+    @Autowired
+    RecordManager recordManager;
 
-    @RequestMapping(value =  "/records", method = RequestMethod.GET)
+    @RequestMapping(value =  "/record", method = RequestMethod.GET)
     public List<Record> getAllRecords() {
-        return null;
-        // return recordsManager.getAllRecords();
+        return recordManager.getAllRecords();
     }
 
-    @RequestMapping(value = "/books/{recordId}", method = RequestMethod.GET)
-    public Optional<Record> getRecordById(@PathVariable(value = "recordId")UUID id) {
-        //return recordsManager.getRecordById(id);
-        return null;
+    @RequestMapping(value = "/record/{recordId}", method = RequestMethod.GET)
+    public Optional<Record> getRecordById(@PathVariable(value = "recordId", required = true)Integer id) {
+        return recordManager.getRecordById(id);
     }
-    @RequestMapping(value = "/records/{recordId}", method = RequestMethod.POST)
-    public Record createBooks(@RequestBody Record record) {
-        //return recordsManager.createRecordById(record);
-        return null;
+    @RequestMapping(value = "/record/{recordId}", method = RequestMethod.POST)
+    public Record createRecordById(@PathVariable(value="recordId", required = true) Integer id, @RequestBody String data) {
+        Record record = new Record(id, data);
+        return recordManager.createOrUpdateRecord(record);
     }
-
 
 }
 
