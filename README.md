@@ -6,6 +6,9 @@ SpringBoot: 3+
 Build Tool: Maven
 DB: SQLite
 
+More SD notes:
+https://whimsical.com/rainbow-rest-api-copy-3mPR5HnUUPSs3LLUbNdKa6
+
 There is swagger integration, so you can test all the APIs using:
 
 http://localhost:8080/swagger-ui/index.html#
