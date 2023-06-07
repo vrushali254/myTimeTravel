@@ -1,6 +1,7 @@
 package org.records.models;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.records.models.converters.JSONObjectConverter;
 import org.springframework.boot.configurationprocessor.json.JSONException;
@@ -11,7 +12,12 @@ import java.util.Iterator;
 import java.util.UUID;
 
 @Entity
-@Table(name="record")
+@Table(
+        name="record",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = "id")
+        }
+)
 public class Record {
 
     public Record() {
@@ -24,6 +30,7 @@ public class Record {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name="id", unique = true, nullable = false)
     private UUID id;
 
     @Column(name="record_id", nullable = false)

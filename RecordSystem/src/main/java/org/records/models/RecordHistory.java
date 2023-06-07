@@ -4,7 +4,12 @@ import java.util.*;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="record_history")
+@Table(
+        name="record_history",
+        uniqueConstraints = {
+            @UniqueConstraint(columnNames = "record_id")
+        }
+)
 public class RecordHistory {
 
     public RecordHistory() {
@@ -16,12 +21,11 @@ public class RecordHistory {
         this.setVersionedRecords(new HashSet<>());
     }
     @Id
-    @Column(name="record_id")
+    @Column(name="record_id", unique = true, nullable = false)
     private Integer id;
 
     @Column(name="latest_version")
     private Integer latestVersion;
-
 
 
     @Column(name="versioned_records")
