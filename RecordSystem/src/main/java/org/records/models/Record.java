@@ -1,7 +1,11 @@
 package org.records.models;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.records.models.converters.JSONObjectConverter;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -25,8 +29,10 @@ public class Record {
     @Column(name="record_id", nullable = false)
     private Integer recordId;
 
-    @Column(name="data")
-    private String data;
+
+    @Column(name="data", columnDefinition = "TEXT")
+    @Convert(converter= JSONObjectConverter.class)
+    private JSONObject data;
 
     @Column(name="versionNum", nullable = false)
     private Integer versionNum = 1;
@@ -48,11 +54,15 @@ public class Record {
     }
 
     public String getData() {
-        return data;
+        return data.toString();
     }
 
     public void setData(String data) {
-        this.data = data;
+        try {
+            this.data = new JSONObject(data);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Integer getVersionNum() {
@@ -76,15 +86,10 @@ public class Record {
         return "Record{" +
                 "uuid=" + id +
                 "record_id=" + recordId +
-                ", data='" + data + '\'' +
+                ", data='" + data.toString() + '\'' +
                 ", versionNum=" + versionNum +
                 ", createdOn=" + createdOn +
                 ", lastUpdatedOn=" + lastUpdatedOn +
                 '}';
-    }
-
-    public void update(String data) {
-        this.versionNum = this.versionNum + 1;
-        this.data = data;
     }
 }

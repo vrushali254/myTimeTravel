@@ -20,8 +20,11 @@ public class RecordController {
     }
     @RequestMapping(value = "v1/record/{recordId}", method = RequestMethod.POST)
     public Record createRecordById(@PathVariable(value="recordId", required = true) Integer id, @RequestBody String data) {
-        Record record = new Record(id, data);
-        return recordManager.createOrUpdateRecord(record);
+        if (recordManager.isJsonValid(data)) {
+            Record record = new Record(id, data);
+            return recordManager.createOrUpdateRecord(record);        }
+        // todo : return bad request
+        return null;
     }
 
     @RequestMapping(value =  {"v2/record/{recordId}", "v2/record/{recordId}/{versionNum}"}, method = RequestMethod.GET)
@@ -32,7 +35,11 @@ public class RecordController {
 
     @RequestMapping(value =  "v2/record/{recordId}/{versionNum}", method = RequestMethod.POST)
     public Optional<Record> updateRecordByVersionNum(@PathVariable(value = "recordId", required = true) Integer id, @PathVariable(value="versionNum", required = true) Integer versionNum, @RequestBody String data) {
-        return recordManager.updateRecordByVersionNum(id, versionNum, data);
+        if (recordManager.isJsonValid(data)) {
+            return recordManager.updateRecordByVersionNum(id, versionNum, data);
+        }
+        // todo : return bad request
+        return null;
     }
 
     @RequestMapping(value="v2/records/{recordId}/history", method = RequestMethod.GET)

@@ -6,6 +6,8 @@ import org.records.models.RecordHistory;
 import org.records.repositories.RecordHistoryRepository;
 import org.records.repositories.RecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 @Service
 public class RecordManager {
@@ -113,5 +115,14 @@ public class RecordManager {
     public Set<Record> getRecordHistory(Integer recordId) {
         RecordHistory recordHistory = recordHistoryRepository.findById(recordId).get();
         return recordHistory.getVersionedRecords();
+    }
+
+     public boolean isJsonValid(String json) {
+        try {
+            new JSONObject(json);
+        } catch (JSONException e) {
+            return false;
+        }
+        return true;
     }
 }
