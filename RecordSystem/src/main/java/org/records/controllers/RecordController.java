@@ -10,7 +10,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("api/")
-public class RecordControllerV1 {
+public class RecordController {
     @Autowired
     RecordManager recordManager = RecordManager.getInstance();
 
