@@ -62,13 +62,17 @@ public class RecordManager {
         return savedRecord;
     }
 
-    public Record updateRecord(Record recordToUpdate) {
-        RecordHistory recordHistory = recordHistoryRepository.findById(recordToUpdate.getRecordId()).get();
-        Integer version = recordHistory.getLatestVersion();
+    public Record updateRecord(Integer recordId, String jsonData) {
+        RecordHistory recordHistory = recordHistoryRepository.findById(recordId).get();
+        Integer latestVersion = recordHistory.getLatestVersion();
+        Record latestRecord = recordHistory.getRecordByVersion(latestVersion);
+        // update the data from new jsonData on old object
+        Record recordToUpdate = new Record(recordId, latestRecord.getData().toString());
+        recordToUpdate.updateData(jsonData);
         // update the version number
-        recordToUpdate.setVersionNum(version+1);
+        recordToUpdate.setVersionNum(latestVersion+1);
+        // Save updated new record entry
         Record updatedRecord = recordRepository.save(recordToUpdate);
-
         // update the latest version number in the record's history
         recordHistory.setLatestVersion(recordToUpdate.getVersionNum());
         // Add the updated record to the record history
@@ -79,14 +83,13 @@ public class RecordManager {
     }
 
     // Creates or updates a record [will update the record's latest version]
-    public Record createOrUpdateRecord(Record record) {
-        Integer recordId = record.getRecordId();
-        if (recordRepository.findFirstByRecordId(recordId).isPresent()) {
+    public Record createOrUpdateRecord(Integer id, String data) {
+        if (recordRepository.findFirstByRecordId(id).isPresent()) {
             // update if exists, by creating new record entry and incrementing the versionNum
-            return updateRecord(record);
+            return updateRecord(id, data);
         }
         // create new record
-        return createRecordById(record);
+        return createRecordById(new Record(id, data));
     }
 
     // Creates or updates a record's specific version
@@ -101,7 +104,7 @@ public class RecordManager {
             return null;
         }
         Record recordToUpdate = oldRecord.get();
-        recordToUpdate.setData(data);
+        recordToUpdate.updateData(data);
         Record updatedRecord = recordRepository.save(recordToUpdate);
 
         //assumption: v2 apis with a versionNum, will modify the existing object without creating a new record version

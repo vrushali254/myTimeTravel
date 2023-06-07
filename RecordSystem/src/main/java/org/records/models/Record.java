@@ -1,13 +1,13 @@
 package org.records.models;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.records.models.converters.JSONObjectConverter;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.UUID;
 
 @Entity
@@ -92,4 +92,22 @@ public class Record {
                 ", lastUpdatedOn=" + lastUpdatedOn +
                 '}';
     }
+
+    public void updateData(String jsonString) {
+        try {
+            JSONObject toUpdate = new JSONObject(jsonString);
+            Iterator<String> keys = toUpdate.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                    if (toUpdate.isNull(key)) {
+                        data.remove(key);
+                    } else {
+                        data.put(key, toUpdate.get(key));
+                    }
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

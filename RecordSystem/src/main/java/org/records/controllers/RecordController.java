@@ -21,8 +21,8 @@ public class RecordController {
     @RequestMapping(value = "v1/record/{recordId}", method = RequestMethod.POST)
     public Record createRecordById(@PathVariable(value="recordId", required = true) Integer id, @RequestBody String data) {
         if (recordManager.isJsonValid(data)) {
-            Record record = new Record(id, data);
-            return recordManager.createOrUpdateRecord(record);        }
+            return recordManager.createOrUpdateRecord(id, data);
+        }
         // todo : return bad request
         return null;
     }
