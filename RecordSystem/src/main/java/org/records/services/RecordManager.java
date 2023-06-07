@@ -9,10 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 @Service
 public class RecordManager {
-    public Optional<Record> getRecordByVersionNum(Integer id, Integer versionNum) {
-        // Check if both the version and record exist
-        return null;
+
+    private static RecordManager recordManager;
+
+    // Singleton service
+    public static RecordManager getInstance() {
+        if(recordManager==null) {
+            recordManager = new RecordManager();
+        }
+        return recordManager;
     }
+
+
     @Autowired
     RecordRepository recordRepository;
 
@@ -24,26 +32,55 @@ public class RecordManager {
     }
 
     //GET Record by id
-    public Optional<Record> getRecordById(Integer id) {
-        return recordRepository.findById(id=id);
+    public Optional<Record> getLatestRecordById(Integer id) {
+        RecordHistory recordHistory = recordHistoryRepository.findById(id).get();
+        return Optional.ofNullable(recordHistory.getRecordByVersion(recordHistory.getLatestVersion()));
     }
 
+    public Optional<Record> getRecordByVersionNum(Integer id, Integer versionNum) {
+        // Check if both the version and record exist
+        RecordHistory recordHistory = recordHistoryRepository.findById(id).get();
+        // Check if that versionNum exists
+        if(recordHistory==null || !recordHistory.checkIfVersionExists(versionNum) ) {
+            return null;
+        }
+        // Get the record using version
+        return Optional.ofNullable(recordHistory.getRecordByVersion(versionNum));
+    }
 
-    //Create/Update Record
+    //Create new record with recordId, versionNum=1
     public Record createRecordById(Record record) {
-        return recordRepository.save(record);
+        // Save record
+        Record savedRecord = recordRepository.save(record);
+        // Initialize a new recordHistory for new record
+        RecordHistory recordHistory = new RecordHistory(record.getRecordId());
+        // Update
+        recordHistory.addRecord(savedRecord);
+        recordHistoryRepository.save(recordHistory);
+        return savedRecord;
     }
 
-    public Record updateRecord(Record record) {
-        Record record_to_update = recordRepository.findById(record.getId()).get();
-        record_to_update.update(record.getData());
-        return recordRepository.save(record_to_update);
+    public Record updateRecord(Record recordToUpdate) {
+        RecordHistory recordHistory = recordHistoryRepository.findById(recordToUpdate.getRecordId()).get();
+        Integer version = recordHistory.getLatestVersion();
+        // update the version number
+        recordToUpdate.setVersionNum(version+1);
+        Record updatedRecord = recordRepository.save(recordToUpdate);
+
+        // update the latest version number in the record's history
+        recordHistory.setLatestVersion(recordToUpdate.getVersionNum());
+        // Add the updated record to the record history
+        recordHistory.addRecord(updatedRecord);
+        recordHistoryRepository.save(recordHistory);
+
+        return updatedRecord;
     }
 
     // Creates or updates a record [will update the record's latest version]
     public Record createOrUpdateRecord(Record record) {
-        if (getRecordById(record.getId()).isPresent()) {
-            // update if exists
+        Integer recordId = record.getRecordId();
+        if (recordRepository.findFirstByRecordId(recordId).isPresent()) {
+            // update if exists, by creating new record entry and incrementing the versionNum
             return updateRecord(record);
         }
         // create new record
@@ -51,13 +88,30 @@ public class RecordManager {
     }
 
     // Creates or updates a record's specific version
-    public Optional<Record> createOrUpdateRecordByVersionNum(Integer id, Integer versionNum) {
-        return null;
+    public Optional<Record> updateRecordByVersionNum(Integer recordId, Integer versionNum, String data) {
+        //RecordId doesn't exist -> return null
+        //RecordId exists, versionNum doesn't ->  return null
+        //RecordId exists, versionNum exists -> update the record with specified versionNum
+
+        // Get the record with record id and version
+        Optional<Record> oldRecord = getRecordByVersionNum(recordId, versionNum);
+        if (oldRecord.isEmpty()) {
+            return null;
+        }
+        Record recordToUpdate = oldRecord.get();
+        recordToUpdate.setData(data);
+        Record updatedRecord = recordRepository.save(recordToUpdate);
+
+        //assumption: v2 apis with a versionNum, will modify the existing object without creating a new record version
+        //else v1 api can be called with the modified payload to create an independent version
+
+        return Optional.of(updatedRecord);
     }
 
 
     // Returns all versions for a record
-    public List<Record> getRecordHistory(Integer id) {
-        return null;
+    public Set<Record> getRecordHistory(Integer recordId) {
+        RecordHistory recordHistory = recordHistoryRepository.findById(recordId).get();
+        return recordHistory.getVersionedRecords();
     }
 }

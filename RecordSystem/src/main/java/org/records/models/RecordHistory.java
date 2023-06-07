@@ -12,7 +12,8 @@ public class RecordHistory {
 
     public RecordHistory(Integer id) {
         this.setId(id);
-        this.setVersionedRecords(new HashMap<>());
+        this.latestVersion = 1;
+        this.setVersionedRecords(new HashSet<>());
     }
     @Id
     @Column(name="record_id")
@@ -21,9 +22,11 @@ public class RecordHistory {
     @Column(name="latest_version")
     private Integer latestVersion;
 
-    @Column(name="versioned_records")
-    private Map<Integer, Record> versionedRecords;
 
+
+    @Column(name="versioned_records")
+    @ElementCollection
+    private Set<Record> versionedRecords;
 
     public Integer getId() {
         return id;
@@ -33,12 +36,30 @@ public class RecordHistory {
         this.id = id;
     }
 
-    public Map<Integer, Record> getVersionedRecords() {
-        return versionedRecords;
+    public void setVersionedRecords(Set<Record> versionedRecords) {
+        this.versionedRecords = versionedRecords;
+    }
+    public void addRecord(Record record) {
+        Integer versionNum = record.getVersionNum();
+        this.versionedRecords.add(record);
     }
 
-    public void setVersionedRecords(Map<Integer, Record> versionedRecords) {
-        this.versionedRecords = versionedRecords;
+    public Set<Record> getVersionedRecords() {
+        return this.versionedRecords;
+    }
+
+    public Record getRecordByVersion(Integer versionNum) {
+        for(Record r:this.versionedRecords) {
+            if(r.getVersionNum().equals(versionNum)) return r;
+        }
+        return null;
+    }
+
+    public boolean checkIfVersionExists(Integer versionNum) {
+        for(Record r:this.versionedRecords) {
+            if(r.getVersionNum().equals(versionNum)) return true;
+        }
+        return false;
     }
 
     public Integer getLatestVersion() {
